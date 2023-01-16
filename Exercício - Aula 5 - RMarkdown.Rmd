@@ -1,0 +1,109 @@
+---
+title: "Exercício - Aula 5"
+author: "André Santos"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problema:
+
+O arquivo mroz (disponível na biblioteca "wooldridge" do R) contém informações sobre a participação no mercado de trabalho de 753 mulheres nos Estados Unidos em 1975. As variáveis de interesse na análise são:
+
+inlf: 1 se participava do mercado de trabalho (ocupada ou desocupada), 0 caso contrário;
+nwifeinc: renda familiar excluindo renda da mulher no mercado de trabalho (em 1000 dólares);
+age: ano de idade;
+kidslt6: número de filhos com menos de 6 anos de idade;
+kidsge6: número de filhos com idade entre 6 e 18 anos;
+
+Assume que a participação no mercado de trabalho seja uma função dos regressores: 
+
+inlf =f(ln(nwifeinc), age, kidslt6, kidsge6)  + erro
+
+Estime modelos logit e probit e interprete as estimativas dos coeficientes e efeitos marginais.
+
+## carregando pacotes
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(rmarkdown)
+library("wooldridge")
+library("lmtest")
+library("margins")
+```
+
+## Carregando os dados
+
+```{r, message=FALSE, warning=FALSE}
+
+# limpeza
+rm(list = ls())
+
+#para prevenir a notação científica
+options(scipen=999)
+
+# carregar dataset
+data("mroz")
+
+```
+
+# Regressões - inlf = log(nwifeinc) + age + kidslt6 + kidsge6 + erro
+
+## Modelo Logit 
+
+```{r, message=FALSE, warning=FALSE}
+
+logit = glm(inlf ~ log(nwifeinc) + age + kidslt6 + kidsge6, data=mroz, family=binomial(link="logit"))
+summary(logit)
+
+```
+
+## Odds Ratio do modelo Logit
+
+```{r, message=FALSE, warning=FALSE}
+exp(coef(logit))
+```
+
+## Estimando os efeitos marginais de logit
+
+```{r, message=FALSE, warning=FALSE}
+margins(logit, type="response")
+
+#  nwifeinc      age kidslt6  kidsge6
+# -0.005645 -0.01462 -0.3016 -0.02584
+```
+
+
+## Modelo Probit
+
+```{r, message=FALSE, warning=FALSE}
+probit = glm(inlf ~ log(nwifeinc) + age + kidslt6 + kidsge6, data=mroz, family=binomial(link="probit"))
+summary(probit)
+```
+
+## Estimando os efeitos marginais de logit
+
+```{r, message=FALSE, warning=FALSE}
+margins(probit, type="response")
+
+#  nwifeinc      age kidslt6  kidsge6
+# -0.005613 -0.01455 -0.2987 -0.02557
+```
+
+# Resposta 
+
+  Para os modelos logit e probit, temos que o modelo logit é um modelo de estimação de uma regressão logística e o modelo probit é um modelo de função densidade acumulada, tendo como variável dependente o log do odds para as variáveis, os seus coeficientes representam o log do odds do modelo, ou seja, representam variações relativas no odds das variáveis. Assim, os coeficientes não podem ser comparados nesse formato com os coeficientes de uma função de probabilidade linear, pois as variáveis dependentes são distintas, por exemplo no logit a variável dependente é o log do odds de y. Dessa forma, serão calculados também os efeitos marginais nos regressores, a fim de avaliar o efeito marginal, ou a probabilidade das estimativas do efeito marginal médio, também conhecido como APE. 
+  
+  Assim, primeiramente vamos analisar o modelo logit. O coeficiente do log(nwifeinc) é representado por -0.38797, ele representa o log do odds da variável explicativa sobre a dependente, que expressa que a chance de se participar do mercado de trabalho será de menos 0.38797 ao aumento de 1% na renda familiar. Assim, a variável age tem o coeficiente -0.06592 que indica o quanto o aumento de 1 ano a mais impacta em menos -0.06592 no log do odds nas chances de participar do mercado de trabalho. A variável kidslt6 tem o coeficiente do log do odds é representado por -1.35967, tendo um efeito negativo de -1.35967 ter filhos menores de 6 anos no nosso modelo. A variável kidsge6, tem um coeficiente de menos -0.11647 no log do odds, sendo que o aumento de um filho entre 6 a 18 anos impacta em menos 0.11647 nas chance de participar do mercado de trabalho, segundo o log do odds da variável inlf.
+  
+  Para avalidar o efeito marginal, em logit foi estimado segundo o pacote margins, em que o efeito parcial médio de 1% de incremento na renda familiar vai ter um efeito marginal médio de -0.005645, ou seja, diminui a probabilidade de ser empregado no mercado de trabalho em menos 0,5645%, enquanto que o efeito parcial médio para a variável age é de -0.01462, tendo menos 1.462% de probabilidade de estar no mercado de trabalho, para a variável kidslt6 temos o efeito médio parcial de -0.3016, que significa a menos 30.16% de probabilidade de estar no mercado de trabalho quando se tem um filho de menos de 6 anos e a variável kidsge6 tem menos -0.02584 de efeito marginal médio, sendo menos 2.584% de probabilidade de se estar no mercado de trabalho com o aumento de filhos entre 6 e 18 anos. 
+  
+  Agora a fim de avaliar a significância temos que a variável log(nwifeinc) é significante a 1%, rejeitando se a H0, sendo a probabilidade de erro de ser diferente de zero de  0.801%. A variável age é significante a menos de 0.1%, rejeitando-se a H0, sendo a probabilidade de erro de ser diferente de zero de 0.000008147853%. A variável kidslt6 é uma variável significante no nosso modelo, rejeitando-se a H0 a significância de menos de 0.1%, assim a probabilidade de erro ao se rejeitar a H0 é de 0.000000000107%. Por fim, a variável kidsge6 é significativa também, mas se rejeita H0 a menos de 10%, sendo a probabilidade de erro ao rejeitar H0 de 7.586%. 
+  
+  Probit segue a mesma lógica de resposta.
+  
+  Em comparação com os dois modelos, podemos utilizar a estatistica AIC em que quanto menor melhor. Dessa forma, o modelo logit tem um AIC menor que o probit. 

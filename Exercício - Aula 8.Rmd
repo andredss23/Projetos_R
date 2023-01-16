@@ -1,0 +1,181 @@
+---
+title: "Exercício - Aula 8"
+author: "André Santos"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+## Problema
+
+Use os dados do arquivo FERTIL3.xlsx para este exercício.
+
+(i) Adicione pet-3 e pet-4 a equação (10.19). Teste se há significância conjunta dessas defasagens.
+
+(ii) Encontre a propens~ao de longo prazo estimada e seu erro padrão no modelo do item (i). Compare os resultados com aqueles obtidos na equação (10.19).
+
+(iii) Estime o modelo de defasagem distribuída polinomial do Problema 6.Encontre a PLP estimada e compare seu resultado com o obtido a partir do modelo irrestrito.
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(rmarkdown)
+library(dynlm)
+library(car)
+library(lmtest)
+library(readxl)
+rm(list=ls())
+options(scipen=999)
+```
+
+
+## Leitura dos dados
+```{r, message=FALSE, warning=FALSE}
+df <- read_excel('C:/Users/andre/OneDrive/Área de Trabalho/Mestrado/Disciplinas/Segundo Semestre - 2022/Econometria/Aula 8 - Análise de Regressão com Dados de Séries/FERTIL3.xlsx')
+dados=ts(df[,2:3],start=1913,freq=1)
+tsdados=ts(dados,start=1913,freq=1)
+summary(dados)
+```
+
+## Construção das binárias
+
+ww2 =1 de 1941 a 1945 e pill=1 após 1963
+```{r, message=FALSE, warning=FALSE}
+year=df[,1]
+
+ww2 <- as.numeric((year>=1941)&(year<=1945))
+dados <- cbind(df[,2:3],ww2)
+
+pill <- as.numeric(year>=1963)
+dados <- cbind(dados,pill)
+```
+
+## Q1) Adicione pet-3 e pet-4 a equação (10.19). Teste se há significância conjunta dessas defasagens.
+
+Modelo com pet-3 e pet-4:
+```{r, message=FALSE, warning=FALSE}
+modelo.dinamico <- dynlm(GFR ~ PE + L(PE) + L(PE,2) + L(PE,3) + L(PE,4) + ww2 + pill,data=tsdados)
+summary(modelo.dinamico)
+```
+
+Necessário realizar um teste de restrição, onde a análise do efeito em conjunto da variável PE e suas defasagens é avaliado. Logo, a hipótese nula é que:
+
+L(PE,3) e L(PE4) são iguais a zero
+
+```{r, message=FALSE, warning=FALSE}
+linearHypothesis(modelo.dinamico,c('L(PE, 3)','L(PE, 4)'))
+```
+# Resposta 1
+
+Após a inclusão das defasagens PEt-3 e Pet-4 não foi encontrada significância conjunta entre as variáveis, pois o teste F foi de 0.9397, ou seja, rejeitando a hipótese nula. Assim, a probabilidade de erro é de aproximadamente 94% para afirmar que uma das duas defasagens é diferente de zero, sendo não significativo.  Não contribuem isoladamente ao modelo as duas defasagens.
+
+### Estatistica F da linearHypothesis indica se a adição de defasagens foi significativa ao nosso modelo. 
+
+# Q2) Encontre a propens~ao de longo prazo estimada e seu erro padrão no modelo do item (i). Compare os resultados com aqueles obtidos na equação (10.19).
+
+```{r, message=FALSE, warning=FALSE}
+# Propensão de Longo Prazo - Modelo anterior
+
+modelo.dinamico_1 <- dynlm(GFR ~ PE + L(PE) + L(PE,2) + ww2 + pill,data=tsdados)
+
+PLP_1 <-  modelo.dinamico_1$coefficients[2] + modelo.dinamico_1$coef[3]+ modelo.dinamico_1$coefficients[4]
+modelo.dinamico_1$
+PLP_1
+```
+
+```{r, message=FALSE, warning=FALSE}
+# Erro padrão - modelo antigo
+
+modelo_dinamico_1_PLP <- dynlm(GFR ~ PE + I(L(PE) - PE) + I(L(PE,2) - PE) + ww2 + pill, data = tsdados)
+summary(modelo_dinamico_1_PLP)
+```
+```{r, message=FALSE, warning=FALSE}
+# Propensão de Longo Prazo - Modelo irrestrito
+
+modelo.dinamico_2 <- dynlm(GFR ~ PE + L(PE) + L(PE,2) + L(PE,3)  + L(PE,4)+ ww2 + pill,data=tsdados)
+
+PLP_2 <- modelo.dinamico_2$coefficients[2] + modelo.dinamico_2$coef[3]+ modelo.dinamico_2$coefficients[4] + modelo.dinamico_2$coefficients[5] + modelo.dinamico_2$coefficients[6] 
+round(PLP_2,3)
+
+```
+```{r, message=FALSE, warning=FALSE}
+# Erro padrão - modelo novo
+
+modelo_dinamico_2_PLP <- dynlm(GFR ~ PE + I(L(PE) - PE) + I(L(PE,2) - PE) + I(L(PE,3) - PE) + I(L(PE,4) - PE) + ww2 + pill, data = tsdados)
+summary(modelo_dinamico_2_PLP)
+
+```
+# Resposta
+
+A propensão de longo prazo (PLP) do modelo novo foi de 0.124, enquanto o erro padrão é de 0.029572. Enquanto que, o modelo antigo possui uma PLP de 0.101 e o erro padrão é de 0.02980. Assim, a PLP e o erro padrão são similares, não tendo a adição das defasagens ao modelo grandes efeitos, dado que conforme vimos na (i) o modelo com defasagens de PEt-3 e PEt-4 não é estatisticamente significante sobre a GFR.
+
+### Os valores PLP significam a propensão de longo prazo dos modelos, o qual signigica o efeito de um aumento permanente da variável PE no longo prazo.
+
+## Q3) Estime o modelo de defasagem distribuída polinomial do Problema 6.Encontre a PLP estimada e compare seu resultado com o obtido a partir do modelo irrestrito.
+
+O modelo de defasagem de distribuição polinomial
+
+```{r, message=FALSE, warning=FALSE}
+# Definição dos Gamas e dos Lambdas: 
+
+# g0 = l0 + l1*0 + (l2*0)²
+# g0 = l0
+
+# g1 = l0 + 11*1 + (l2*1)²
+# g1 = l0 + l1 + l2
+
+# g2 = l0 + l1*2 + (l2*2)²
+# g2 = lo + 2*l1 + 4*l2
+
+# g3 = l0 + l1*3 + (l2*3)²
+# g3 = l0 + 3*l1 + 9*l2
+
+# g4 = l0 + l1*4 + (l2*4)²
+# g4 = l0 + 4*l1 + 16*l2
+
+# O seguinte modelo abaixo possui as defasagens do tempo de 1, 2, 3 e 4:
+
+# GFR <- intercepto + (l0) * PE + (l0 + l1 + l2) * L(PE) + (lo + 2*l1 + 4*l2) * L(PE, 2) + (l0 + 3*l1 + 9*l2) * L(PE, 3) + (l0 + 4*l1 + 16*l2) * L(PE, 4) + u
+
+# Isolando o lambda:
+
+# GFR <- intercepto + l0*(PE + L(PE) + L(PE,2) + L(PE,3) + L(PE, 4)) + l1*(L(PE) + 2*L(PE,2) + 3*L(PE,3) + 4*L(PE, 4)) + l2 *(L(PE) + 4*L(PE,2) + 9*L(PE,3) + 16*L(PE, 4))
+```
+
+Modelo com defasagens 
+
+```{r, message=FALSE, warning=FALSE}
+modelo_defasagem <- dynlm(GFR ~ I(PE + L(PE) + L(PE, 2) + L(PE, 3) + L(PE, 4)) + I(L(PE) + 2* L(PE, 2) + 3* L(PE, 3) + 4* L(PE, 4)) + I(L(PE) + 4* L(PE, 2) + 9 * L(PE, 3) + 16 * L(PE, 4)) + ww2 + pill, data = tsdados )
+
+summary(modelo_defasagem)
+```
+Modelo com gamas e lambdas 
+
+```{r, message=FALSE, warning=FALSE}
+l0 <- modelo_defasagem$coefficients[2]
+l1 <- modelo_defasagem$coefficients[3]
+l2 <- modelo_defasagem$coefficients[4]
+
+g0 = l0
+g1 = l0 + l1 + l2
+g2 = l0 + 2*l1 + 4*l2
+g3 = l0 + 3*l1 + 9*l2
+g4 = l0 + 4*l1 + 16*l2
+
+PLP_defasagem <- g0 + g1 + g2 + g3 + g4
+PLP_defasagem
+```
+```{r, message=FALSE, warning=FALSE}
+round(PLP_defasagem, 3)
+```
+# Resposta 
+
+O ajuste do modelo de defasagem distribuída polinomial solicitado na primeira parte do exercício apresentou os coeficientes de 0,06920 para PE, 0,0238 para L(PE, 1), 0,00162 para L(PE, 2), 0,002512 para L(PE, 3) e 0,0265 para L(PE, 4), de modo que a PLP, estimada com a soma dos coeficientes, foi de aproximadamente 0,124. Em comparação com o modelo irrestrito, temos que a PLP teve praticamente o mesmo valor, em torno de 0,124. 
+
+Contudo, o modelo irrestrito apresentou um R² superior ao do modelo de defasagem, sendo 0,5368 em comparação a 0,5364 do modelo restrito. A estatística F também deve ser considera na avaliação desse exercício, pois avalia se o modelo em geral possui uma significancia geral, tendo o modelo de defasagem distribuída polinominal uma estatística F de 0.000000002525 e ao modelo irrestrito de 0.00000003633, assim ambos os modelos tem a H0 rejeitava e possuem conjuntamente suas variáveis significativas. Assim, podemos considerar que, no geral, os resultados foram muito similares entre os dois modelos.
+
+### g0, g1, g2, g3 e g4 representam a soma dos coeficientes do modelo de defasagem, ou seja, busca avaliar qual o tamanho das defasagens e seus efeitos, tanto separadamente quanto somadas. 

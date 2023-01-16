@@ -1,0 +1,195 @@
+---
+title: "Exercício - Aula 9"
+author: "André Santos"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problema
+
+Use os dados do arquivo HSEINV.xlsx para este exercício.
+
+(i) Encontre a autocorrelação de primeira ordem em log(invpc). Agora, encontre a autocorrelação depois de destendenciar (remover a tendência) linearmente log(invpc). Faça o mesmo para log(price). Qual das duas séries pode ter uma raiz unitária?
+
+(ii) Com base em suas descobertas do item (i), estime a equação log(invpct) = b_0 + b_1 var(log(pricet)) + b_2 t + u_t e registre os resultados na forma padrão. Interprete o coeficiente de b_1 e determine se ele é estatisticamente significante.
+(iii) Retire linearmente a tendência de log(invpct) e use a versão sem tendência como variável dependente na regressão do item (ii) (ver Seção 10.5). O que acontece com o Rˆ2?
+(iv) Agora use var(log(invpct)) como variável dependente. De que forma seus resultados mudam em relação ao item (ii)? A tendência temporal ainda é significante? Por que ou por que não?
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(rmarkdown)
+library(dynlm)
+library(car)
+library(lmtest)
+library(readxl)
+library(FinTS)
+rm(list=ls())
+options(scipen=999)
+```
+
+## Leitura dos dados
+
+```{r}
+df=read_excel('C:/Users/andre/OneDrive/Área de Trabalho/Mestrado/Disciplinas/Segundo Semestre - 2022/Econometria/Aula 9 - Análise de Regressão com Dados de Séries Temporais/HSEINV.xlsx')
+
+# definição das variáveis
+invpc <- df$INV/df$POP
+
+invpc <- ts(invpc,start=1947,freq=1)
+price <- ts(df$PRICE,start=1947,freq=1)
+
+log_invpc <- log(invpc)
+log_price <- log(price)
+trend <- ts(seq(1:length(invpc)),start=1947,freq=1)
+```
+
+## Q1) Encontre a autocorrelação de primeira ordem em log(invpc). Agora, encontre a autocorrelação depois de destendenciar (remover a tendência) linearmente log(invpc). Faça o mesmo para log(price). Qual das duas séries pode ter uma raiz unitária?
+
+## Análise - log_invcp
+
+```{r}
+# Gráfico de autocorrelação para log_invpc
+
+acf(log_invpc)
+```
+
+```{r}
+# Autocorrelação de primeira ordem para log_invpc
+
+n=length(invpc)
+cor(log_invpc[2:(n)],log_invpc[1:(n-1)])
+
+```
+### Correlação de loginvpc(t) por loginvpc(t-1) foi menor que 1, logo loginvpc é integrado de ordem zero I(0), sendo essa correlação um processo de autocorrelação de ordem zero. 
+
+
+```{r}
+# Remover a tendência da log_invpc
+
+sem_tend_invpc <- lm(log_invpc~trend, data=df)
+summary(sem_tend_invpc)
+```
+```{r}
+# Autocorrelação de primeira ordem para o modelo sem tendência para log_invpc
+
+cor(sem_tend_invpc$residuals[2:n],sem_tend_invpc$residuals[1:(n-1)])
+```
+```{r}
+# Coeficiente para log_invpc
+
+modelo_din_invpc <- dynlm(log_invpc ~ L(log_invpc,1),data=df)
+summary(modelo_din_invpc)
+```
+## Análise - log_price
+
+```{r}
+# Gráfico de autocorrelação para log_price
+
+acf(log_price)
+```
+```{r}
+# Autocorrelação de primeira ordem para log_price
+
+n=length(price)
+cor(log_price[2:(n)],log_price[1:(n-1)])
+
+```
+### Correlação de logprice(t) por logprice(t-1) foi menor que 1, logo logprice é integrado de ordem zero I(0), sendo essa correlação um processo de autocorrelação de ordem zero.
+
+```{r}
+
+# Remover a tendência da log_price
+
+sem_tend_price <- lm(log_price~trend, data=df)
+summary(sem_tend_price)
+
+```
+
+```{r}
+# Autocorrelação de primeira ordem para o modelo sem tendência para log_price
+
+cor(sem_tend_price$residuals[2:n],sem_tend_price$residuals[1:(n-1)])
+```
+
+
+```{r}
+# Coeficiente para log_price
+
+modelo_din_price <- dynlm(log_price ~ L(log_price,1),data=df)
+summary(modelo_din_price)
+```
+## Teste de raiz unitária
+
+```{r}
+# log_incvp
+
+linearHypothesis(modelo_din_invpc, "L(log_invpc, 1) = 1")
+
+plot(modelo_din_invpc$residuals)
+Acf(modelo_din_invpc$residuals)
+```
+```{r}
+# IC
+
+confint(modelo_din_invpc)
+```
+
+```{r}
+# log_price
+
+linearHypothesis(modelo_din_price, "L(log_price, 1) = 1")
+
+plot(modelo_din_price$residuals)
+Acf(modelo_din_price$residuals)
+```
+```{r}
+# IC
+
+confint(modelo_din_price)
+```
+
+## Resposta Q1
+
+A autocorrelação de primeira ordem para log_invpc foi de 0.639, quando a tendência é removida passa a ser de 0,485. Dessa forma, descartamos a hipótese de raiz unitária devido a redução da autocorrelação, dado que o ajuste do modelo para log_invpc ~ L(log_invpc, 1) com a tendência estima o coeficiente de 0,634 para L(log_invpc, 1), estando dentro do intervalo de confiança de 95%, em IC (0,387 - 0,881).
+
+A autocorrelação de primeira ordem para log_price foi de 0,949, enquanto que quando a tendência é removida para a ser de 0.8215255, ainda se mantendo elevada. Assim, Ademais, o ajuste do modelo log_price ~ L(log_price, 1), com tendência, apresenta um coeficiente estimado de 0,934 para L(log_price, 1), o qual pode estar entre 0,834 e 1,03, considerando 95% de confiança. Contudo, não podemos descartar a hipótese de raiz unitária devido a probabilidade de erro do coefiente ser igual a um é de 19%, não sendo estatisticamente significativo, ou seja, não rejeitando a H0. 
+
+## Q2)
+Com base em suas descobertas do item (i), estime a equação log(invpct) = b_0 + b_1 var(log(pricet)) + b_2 t + u_t e registre os resultados na forma padrão. Interprete o coeficiente de b_1 e determine se ele é estatisticamente significante.
+
+```{r}
+modelo_log_dif <- dynlm(log_invpc ~ d(log_price) + trend(log_invpc), data = df)
+summary(modelo_log_dif)
+```
+## Resposta Q2
+
+O modelo log_invpc ~ d(log_price) + trend(log_invpc) teve como resultado log(invpct) = -0,853 +
+3,879 $\Delta$(log(pricet)) + 0,008 t + u_t. O $\beta_{1}$ de $\Delta$(log(price$_{t}$)) tem o coeficiente de 3.878644 e é estatisticamente significante, pois a probabilidade de erro é 0.000244, pois a variação de 1 ponto percentual no crescimento dos preços leva a uma variação de 3.88% no investimento per capita.
+
+## Q3) Retire linearmente a tendência de log(invpct) e use a versão sem tendência como variável dependente na regressão do item (ii) (ver Seção 10.5). O que acontece com o R²?
+
+```{r}
+sem_tend_invpc_din <- dynlm(log_invpc ~ trend(log_invpc), data = df)
+modelo_sem_tend_invpc <- dynlm(sem_tend_invpc_din$residuals ~ d(log_price) , data = df)
+
+summary(modelo_sem_tend_invpc)
+```
+## Resposta Q3
+
+O R² do modelo com tendência foi de 0.51, enquanto do modelo com tendência foi de 0.30. Assim, ao retirar a tendência o R² diminiu e explicou menos sobre o modelo, dado que só passou a ter somenete uma variável dependente d(log_price) que explica 30% do modelo. O R² do modelo com tendência é mais alto, pois os investimentos e os preços apresentam uma tendência em comum, bem como existem fatores faltantes que explicam a variação dos investimentos. Como o R² depende da soma dos quadrados totais e este parte de uma média constante, há viés no R² de ajustes de modelos, cuja série apresenta tendência, sendo necessário retirá-la.
+
+## Q4) Agora use $\Delta$ (log(invpct)) como variável dependente. De que forma seus resultados mudam em relação ao item (ii)? A tendência temporal ainda é significante? Por que ou por que não? 
+
+```{r}
+modelo_dif_dif <- dynlm(d(log_invpc) ~ d(log_price) + trend(log_invpc), data = df)
+summary(modelo_dif_dif)
+```
+
+## Resposta Q4
+
+A partir dos resultados, podemos concluir que o melhor modelo não leva em conta o crescimento do investimento. pois conforme avaliado não se trata de um modelo com série de raiz unitária, mas um modelo que apresenta tendência, conforme apontado na resposta 3. Assim, $\Delta$(log(pricet)) não é significativo, pois tem uma probabilidade de erro de 17.7% de ser zero. Tendo em vista que, a diferença elimina as tendências lineares, a probabilidade de erro ao afirmar que a probalidade é diferente de zero é de 98,5%.

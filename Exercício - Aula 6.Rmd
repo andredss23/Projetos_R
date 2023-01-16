@@ -1,0 +1,131 @@
+---
+title: "Exercício - Aula 6"
+author: "André Santos"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problema
+
+O arquivo mroz (disponível na biblioteca "wooldridge" do R) contém informações sobre a participação no mercado de trabalho de 753 mulheres nos Estados Unidos em 1975. As variáveis de interesse na análise são:
+
+inlf: 1 se participava do mercado de trabalho, 0 caso contrário
+wage: rendimento hora no mercado de trabalho
+lwage: log do rendimento hora no mercado de trabalho
+nwifeinc: renda familiar excluindo renda da mulher no mercado de trabalho (em 1000 dólares)
+age: ano de idade 
+kidslt6: número de filhos com menos de 6 anos de idade
+kidsge6: número de filhos com idade entre 6 e 18 anos
+
+Assuma que o log da renda do trabalho seja uma função (f1) linear dos regressores: 
+
+lwage = f1(ln(nwifeinc), age, kidslt6, kidsge6) + erro
+
+Assuma ainda que a participação no mercado de trabalho (wage>0) seja uma função não linear (f2) dos mesmos regressores:
+inlf = f2(ln(nwifeinc), age, kidslt6, kidsge6)  + erro
+
+Compare as estimavas de MQO com as de um modelo Heckit para a função do log da renda (f1). Analise indícios de seletividade na amostra e seus impactos na função do log da renda.
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(rmarkdown)
+library("wooldridge")
+library("lmtest")
+library("margins")
+library('VGAM')
+library("sampleSelection")
+```
+
+
+## Carregando os dados
+
+```{r, message=FALSE, warning=FALSE}
+
+# limpeza
+rm(list = ls())
+
+#para prevenir a notação científica
+options(scipen=999)
+
+# carregar dataset
+data("mroz")
+
+```
+
+## Análise descritiva das variáveis
+```{r, message=FALSE, warning=FALSE}
+summary(mroz)
+```
+
+## Quantidade de variáveis nulas no dataset
+
+inlf          0
+hours         0
+kidslt6       0
+kidsge6       0
+age           0
+educ          0
+wage        325
+repwage       0
+hushrs        0
+husage        0
+huseduc       0
+huswage       0
+faminc        0
+mtr           0
+motheduc      0
+fatheduc      0
+unem          0
+city          0
+exper         0
+nwifeinc      0
+lwage       325
+expersq       0
+dtype: int64
+
+# Regressões
+
+## Modelo 1 - Regressão Linear por MQO - lwage = f1(ln(nwifeinc), age, kidslt6, kidsge6) + erro
+
+```{r, message=FALSE, warning=FALSE}
+mqo1<-lm(lwage ~ log(nwifeinc) + age + kidslt6 + kidsge6, data = mroz)
+summary(mqo1)
+```
+
+## Modelo 2 - Regressão de Probabilidade Linear por MQO - inlf =f2(ln(nwifeinc), age, kidslt6, kidsge6)  + erro
+
+```{r, message=FALSE, warning=FALSE}
+mqo2 <- lm(inlf ~ log(nwifeinc) + age + kidslt6 + kidsge6, data=mroz)
+summary(mqo2)
+```
+
+## Modelos Heckit
+
+```{r, message=FALSE, warning=FALSE}
+modeloheckit <- heckit(inlf ~ log(nwifeinc) + age + kidslt6 + kidsge6, lwage ~ log(nwifeinc) + age + kidslt6 + kidsge6, data=mroz)
+summary(modeloheckit)
+```
+
+# Resposta
+
+  Primeiramente, vamos realizar uma análise descritiva dos dados, comprovamos que em uma amostra de 753 pessoas no dataset mroz temos 325 (43.16% da amostra) pessoas sem trabalhar, ou seja, possuem a salário zero (valores na amostra ficando NAs, ou seja, nulos na amostra) e a variável inlf expressa se a pessoa está no mercado de trabalho ou não, assim se ela estiver terá o valor 1 e caso não esteja no mercado de trabalho terá o valor 0. Dessa forma, essas informações serão relevantes para quando avaliarmos a questão do truncamento em uma regressão, pois os valores censurados terão de ser analisados para interpretar a viabilidade de um modelo.
+  
+  As estimativas do modelo 1 mostram que somente as variáveis log(nwifeinc) e kidsge6 se mostraram significativas, a primeira rejeita a H0 em 0.1% e a segunda rejeita a H0 em 5%. Entretanto, as outras variáveis do modelo não se mostram significativas.
+  
+  No modelo 2, temos a variável lnlf como dependente, tendo todas as variáveis significativas, sendo rejeitadas a diferentes níveis de significância.
+  
+  Contudo, o modelo 1 pode apresentar distorções na estimativas de MQO, pois 43.16% da amostra não trabalha, podendo ter relação entre os erros do modelo e as variáveis do modelo, assim violando a RM.4 (Média condicional zero: os erros não podem estar vinculados as variáveis explicativas). Por isso, vamos utilizar o modelo Heckit para avaliar se o modelo tem viés de seletividade. 
+  
+  Dessa forma, o modelo Heckit tem os coeficientes para o modelo inlf = log(nwifeinc) + age + kidslt6 + kidsge6 + erro, muito semelhantes ao resultado encontrado no modelo 2. Contudo, a razão inversa de Mills (RIM) tem como objetivo avaliar se existe indício de viés de seletividade no modelo devido a falta dados na variável wage, sendo o resultado que não foi encontrado viés de seleção, pois se rejeita a H0 há mais de 10% de significância e a RIM não se mostrou significativa.
+
+## Modelos Heckit - Adicionando mais variáveis ao modelo
+
+```{r, message=FALSE, warning=FALSE}
+modeloheckit <- heckit(inlf ~ log(nwifeinc) + age + kidslt6 + kidsge6 + educ + exper, lwage ~ log(nwifeinc) + age + kidslt6 + kidsge6, data=mroz)
+summary(modeloheckit)
+```
