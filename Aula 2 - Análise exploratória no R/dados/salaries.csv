@@ -1,0 +1,501 @@
+job_title;experience_level;age;salary;company_size
+Data Scientist;Senior;70;123395;471
+Data Engineer;Senior;70;101395;19
+Data Architect;Senior;70;84414;35
+Data Scientist;Senior;70;111847;33
+Data Scientist;Senior;70;89085;613
+Data Engineer;Senior;70;154447;734
+Analytics Engineer;Senior;70;103290;1169
+Data Architect;Senior;70;113183;1325
+Machine Learning Engineer;Senior;70;101476;1125
+Data Engineer;Senior;70;127246;212
+Data Architect;Senior;70;104362;124
+Research Engineer;Senior;70;79877;165
+Data Analyst;Senior;69;106433;408
+Data Engineer;Senior;69;105101;183
+Data Manager;Director;69;194183;15
+Data Engineer;Senior;69;126495;452
+Data Engineer;Director;69;150154;1117
+Data Scientist;Senior;69;130265;1288
+Data Scientist;Senior;69;146967;341
+Data Engineer;Senior;69;94681;419
+ML Engineer;Senior;68;128582;168
+Data Scientist;Senior;68;72629;460
+Data Architect;Senior;68;94942;458
+Data Engineer;Senior;68;106062;46
+Data Engineer;Senior;68;147761;24
+Data Manager;Director;68;195206;31
+Data Engineer;Senior;68;132471;467
+Data Scientist;Senior;68;78406;1343
+Machine Learning Scientist;Senior;68;134035;673
+Machine Learning Engineer;Senior;68;149367;1477
+Data Scientist;Senior;68;122439;1267
+Analytics Engineer;Senior;68;101814;210
+Data Engineer;Senior;68;80603;276
+Data Architect;Senior;68;146116;295
+Data Engineer;Senior;67;81611;163
+Data Lead;Director;67;166324;387
+Data Engineer;Senior;67;108374;225
+Data Engineer;Director;67;196542;226
+Applied Scientist;Senior;67;109916;22
+Data Engineer;Senior;67;140583;43
+Machine Learning Scientist;Senior;67;106913;39
+Data Scientist;Senior;67;138324;32
+Data Analyst;Senior;67;116957;457
+Data Engineer;Senior;67;107836;756
+Applied Scientist;Senior;67;114307;208
+Data Manager;Director;67;152080;89
+Machine Learning Engineer;Senior;67;142201;1019
+Data Analyst;Senior;67;169555;436
+Data Science Consultant;Senior;66;102066;405
+AI Engineer;Senior;66;140960;53
+Business Intelligence Engineer;Senior;66;144813;49
+Data Scientist;Senior;66;169150;629
+Research Analyst;Senior;66;140143;781
+Data Engineer;Senior;66;143214;1079
+Data Science Manager;Senior;66;120102;545
+Data Manager;Senior;66;124383;817
+Machine Learning Engineer;Senior;66;160671;649
+Director of Data Science;Director;66;164646;125
+Data Analyst;Director;66;153506;171
+Data Scientist;Senior;66;107489;242
+Data Analyst;Senior;65;74795;412
+Data Lead;Director;65;158999;257
+Data Product Manager;Senior;65;112513;361
+Data Scientist;Senior;65;129347;216
+Data Scientist;Senior;65;86709;48
+Data Quality Analyst;Senior;65;145765;32
+Data Architect;Senior;65;118124;44
+Data Analyst;Senior;65;96673;197
+Data Engineer;Senior;65;148564;356
+Data Scientist;Senior;65;83781;1383
+Data Engineer;Senior;65;131842;807
+Data Engineer;Senior;65;86871;674
+Machine Learning Engineer;Senior;65;121876;559
+Data Science Manager;Senior;65;117989;708
+Data Analyst;Senior;65;138031;795
+Data Manager;Senior;65;127460;722
+Data Engineer;Senior;65;89108;1150
+Data Scientist;Senior;65;87089;1076
+Machine Learning Engineer;Senior;65;138046;493
+Research Engineer;Senior;65;85311;394
+Data Analyst;Director;65;159128;383
+Business Intelligence Analyst;Senior;65;130440;352
+Data Engineer;Senior;64;148532;211
+Data Scientist;Senior;64;136280;410
+Data Scientist;Senior;64;74042;45
+Data Scientist;Senior;64;145351;15
+Data Analyst;Senior;64;105870;34
+Data Scientist;Senior;64;118716;94
+Machine Learning Engineer;Senior;64;82469;561
+Data Scientist;Senior;64;113301;1267
+Data Scientist;Senior;64;81355;1370
+Data Engineer;Senior;63;136434;94
+Data Scientist;Senior;63;91334;144
+Data Analyst;Senior;63;82525;268
+Data Analyst;Senior;63;90465;45
+Data Engineer;Senior;63;95921;19
+Data Manager;Senior;63;89799;25
+Data Engineer;Senior;63;85039;17
+Data Engineer;Senior;63;84236;414
+Data Engineer;Senior;63;125415;191
+Data Analyst;Senior;63;137028;125
+Analytics Engineer;Senior;63;106429;904
+Data Engineer;Senior;63;96345;1293
+Data Analyst;Senior;62;103229;255
+Data Engineer;Senior;62;107564;118
+Data Engineer;Senior;62;134380;240
+Data Quality Analyst;Senior;62;118363;33
+Data Engineer;Senior;62;117757;15
+Machine Learning Engineer;Senior;62;117930;43
+Data Scientist;Senior;62;76378;11
+Business Intelligence Engineer;Senior;62;95919;12
+Data Scientist;Senior;62;81038;11
+Data Scientist;Senior;62;109341;24
+Data Manager;Director;62;175001;379
+Data Scientist;Senior;62;95428;1333
+Data Engineer;Director;62;156980;899
+Data Engineer;Senior;62;93361;557
+Data Scientist;Senior;62;74998;505
+Applied Scientist;Senior;62;128051;1171
+Data Scientist;Senior;62;95247;662
+Data Manager;Director;62;150421;487
+Data Scientist;Senior;62;94795;192
+Data Analyst;Senior;62;117343;74
+Data Scientist;Senior;62;92422;198
+Data Engineer;Director;61;175385;112
+Applied Scientist;Senior;61;113760;40
+Machine Learning Scientist;Senior;61;124023;23
+Machine Learning Engineer;Senior;61;137572;100
+Research Scientist;Senior;61;127371;1073
+Data Science Manager;Senior;61;83723;1429
+Data Scientist;Senior;61;82213;1444
+Data Engineer;Senior;61;146849;695
+Research Scientist;Senior;61;99732;620
+Data Analyst;Senior;61;76877;326
+Data Scientist;Senior;60;92909;394
+Data Engineer;Senior;60;119117;27
+Business Intelligence Engineer;Senior;60;124892;722
+Data Scientist;Senior;60;126270;573
+Data Scientist;Senior;60;79295;829
+Data Engineer;Senior;60;78174;229
+Data Architect;Senior;60;81059;132
+Applied Scientist;Senior;59;145235;45
+Machine Learning Engineer;Senior;59;144553;45
+Data Analyst;Senior;59;126619;37
+Machine Learning Engineer;Senior;59;90803;46
+Computer Vision Engineer;Senior;59;90331;234
+Applied Scientist;Senior;59;104676;473
+Data Scientist;Senior;59;112320;1448
+Machine Learning Engineer;Senior;59;103644;1186
+Research Scientist;Senior;59;108794;1423
+Data Architect;Senior;59;83144;1208
+Data Science Practitioner;Senior;59;135896;888
+Analytics Engineer;Senior;59;76610;237
+Machine Learning Engineer;Senior;59;142368;466
+Research Scientist;Senior;59;98273;189
+Data Scientist;Senior;59;78400;215
+Data Analyst;Senior;58;74346;493
+Data Strategy Manager;Senior;58;70868;47
+Machine Learning Engineer;Senior;58;128140;41
+Data Analyst;Senior;58;137928;447
+Data Engineer;Senior;58;84596;83
+Computer Vision Engineer;Senior;58;77856;245
+Data Scientist;Senior;58;112036;51
+Data Scientist;Senior;58;90849;492
+Analytics Engineer;Senior;58;83487;737
+Business Intelligence Engineer;Senior;58;113183;770
+Data Scientist;Senior;58;82650;164
+Data Analyst;Senior;58;112858;138
+Data Engineer;Senior;58;79087;361
+Data Engineer;Senior;58;127305;202
+Machine Learning Engineer;Senior;58;133937;391
+Machine Learning Engineer;Senior;58;99809;1309
+Data Analyst;Senior;57;147685;392
+Data Scientist;Senior;57;121612;43
+Data Scientist;Senior;57;91810;23
+Machine Learning Engineer;Senior;57;87368;45
+Business Intelligence Engineer;Senior;57;93008;35
+Data Engineer;Senior;57;127721;30
+Data Engineer;Senior;57;137087;1496
+Data Scientist;Senior;57;77167;649
+Machine Learning Engineer;Senior;57;98677;1003
+Machine Learning Scientist;Senior;57;102964;1261
+Data Scientist;Senior;57;115467;949
+Data Scientist;Senior;57;107121;467
+Data Architect;Senior;57;119664;471
+Business Intelligence Engineer;Senior;57;70219;200
+Data Engineer;Senior;56;112717;435
+Business Intelligence Engineer;Senior;56;104364;1131
+Data Engineer;Senior;56;133798;24
+Data Scientist;Senior;56;117610;26
+Data Architect;Senior;56;143692;17
+Data Scientist;Senior;56;102475;1088
+Machine Learning Engineer;Senior;56;82751;1458
+Research Engineer;Senior;56;118888;580
+Data Scientist;Senior;56;104110;664
+Data Scientist;Senior;56;111790;1494
+Machine Learning Engineer;Senior;56;86044;1489
+Machine Learning Engineer;Senior;56;135386;774
+Machine Learning Engineer;Senior;56;146741;1026
+Machine Learning Engineer;Senior;56;77813;508
+Data Engineer;Senior;56;123894;414
+Machine Learning Engineer;Senior;56;126910;208
+Data Engineer;Senior;56;91746;109
+Data Scientist;Senior;55;137440;49
+Machine Learning Engineer;Senior;55;97196;17
+Data Engineer;Senior;55;90514;34
+Data Engineer;Senior;55;147711;100
+Machine Learning Engineer;Senior;55;95108;1488
+Data Architect;Senior;55;103701;479
+Data Scientist;Senior;54;128355;155
+Data Engineer;Senior;54;77859;323
+Data Science Consultant;Senior;54;140180;472
+Data Architect;Senior;54;109577;242
+Data Architect;Senior;54;121338;22
+Data Science Engineer;Senior;54;147288;36
+Data Science Engineer;Senior;54;111838;49
+Business Intelligence Engineer;Senior;54;99477;35
+Machine Learning Engineer;Senior;54;85243;14
+Data Scientist;Senior;54;139548;694
+Data Scientist;Senior;54;133063;547
+Data Scientist;Senior;54;94967;1489
+Data Analyst;Senior;54;137937;55
+Data Engineer;Senior;53;135914;12
+Business Intelligence Engineer;Senior;53;122332;38
+Data Scientist;Senior;53;119456;1209
+Data Engineer;Senior;53;119319;1306
+Data Scientist;Senior;53;148136;677
+Data Science Manager;Senior;53;138424;1150
+Research Engineer;Senior;53;129870;840
+Business Intelligence Engineer;Senior;53;136849;898
+Data Engineer;Senior;52;143399;41
+Machine Learning Engineer;Senior;52;108821;41
+Research Engineer;Senior;52;121292;1059
+Machine Learning Engineer;Senior;52;133370;1313
+Data Scientist;Senior;52;96491;252
+Data Analyst;Senior;51;75656;59
+Data Scientist;Senior;51;88231;112
+Data Scientist;Senior;51;108809;424
+Business Intelligence Engineer;Senior;51;132297;882
+Machine Learning Engineer;Senior;51;131262;38
+Data Engineer;Senior;51;147427;35
+Data Analyst;Senior;51;82694;15
+Machine Learning Engineer;Senior;51;104939;18
+Data Analyst;Senior;51;94499;833
+Machine Learning Engineer;Senior;51;119207;1159
+Data Science Practitioner;Senior;51;72442;666
+Data Scientist;Senior;51;116962;1234
+Data Analyst;Senior;51;104508;420
+Data Scientist;Senior;51;89955;106
+Data Analyst;Senior;50;143839;435
+Data Engineer;Senior;50;83411;459
+Data Engineer;Senior;50;105121;19
+Machine Learning Engineer;Senior;50;147698;20
+Machine Learning Engineer;Senior;50;87499;605
+Research Analyst;Senior;50;117211;1452
+Research Scientist;Senior;50;141140;1417
+Business Intelligence Engineer;Senior;50;114139;1472
+Data Analyst;Senior;50;109279;1342
+Machine Learning Engineer;Senior;50;110336;974
+Machine Learning Engineer;Senior;50;94560;1320
+Data Scientist;Senior;50;79805;1007
+Applied Scientist;Senior;50;117632;130
+Data Architect;Senior;50;123714;370
+Data Architect;Senior;50;85695;124
+Analytics Engineer;Senior;50;102414;462
+Data Scientist;Senior;50;131058;167
+Business Intelligence Analyst;Senior;50;76450;157
+Data Architect;Senior;50;88689;257
+ML Engineer;Senior;49;83012;220
+Data Product Manager;Senior;49;79199;130
+Business Intelligence Engineer;Senior;49;78425;18
+Data Scientist;Senior;49;84960;39
+Business Intelligence Engineer;Senior;49;107749;1127
+Machine Learning Engineer;Senior;49;144168;971
+Data Analyst;Senior;49;138847;1346
+Machine Learning Engineer;Senior;49;100298;1359
+Machine Learning Engineer;Senior;49;75950;1061
+Machine Learning Engineer;Senior;49;96842;393
+Applied Scientist;Senior;49;118024;98
+Data Scientist;Senior;49;109721;240
+Data Architect;Senior;49;108230;360
+Data Engineer;Senior;49;126394;347
+Data Analyst;Senior;49;145569;384
+Business Intelligence Analyst;Senior;48;117695;30
+Data Engineer;Senior;48;73440;10
+Data Scientist;Senior;48;134785;15
+Research Analyst;Senior;48;80484;655
+Machine Learning Engineer;Senior;48;103404;353
+Machine Learning Engineer;Senior;48;109717;79
+Data Scientist;Senior;47;78227;117
+Data Science Consultant;Senior;47;97578;152
+Machine Learning Engineer;Senior;47;139787;841
+Research Analyst;Senior;47;107397;1262
+Data Scientist;Senior;47;122530;692
+Business Intelligence Engineer;Senior;47;88783;797
+Data Scientist;Senior;47;90606;611
+Data Engineer;Senior;47;144972;1283
+Director of Data Science;Director;47;156368;309
+Machine Learning Engineer;Senior;46;104896;266
+Data Science Consultant;Senior;46;110330;468
+Data Analyst;Senior;46;102839;43
+Machine Learning Engineer;Senior;46;115151;39
+Business Intelligence Engineer;Senior;46;93973;28
+Data Engineer;Senior;46;126090;296
+Data Scientist;Senior;46;141255;1060
+Data Engineer;Senior;46;73604;157
+Data Scientist;Senior;46;74392;446
+Data Scientist;Senior;46;70309;97
+Data Engineer;Senior;46;92505;448
+Data Analyst;Analyst;45;67551;317
+Data Scientist;Senior;45;108657;466
+Machine Learning Engineer;Analyst;45;65329;499
+Applied Scientist;Senior;45;91432;19
+Data Analyst;Analyst;45;92099;15
+Research Analyst;Analyst;45;112677;21
+Data Engineer;Senior;45;133405;48
+Data Engineer;Analyst;45;82011;27
+Data Strategy Manager;Senior;45;116279;39
+Machine Learning Engineer;Senior;45;149475;35
+Research Scientist;Analyst;45;61889;26
+Data Visualization Specialist;Senior;45;98029;885
+AI Engineer;Analyst;45;113628;1439
+Data Scientist;Senior;45;122825;780
+Data Scientist;Senior;45;97663;914
+Data Engineer;Senior;45;146303;507
+Data Scientist;Senior;45;122313;304
+Analytics Engineer;Senior;45;88022;181
+Data Engineer;Senior;45;99414;439
+Data Architect;Senior;45;146975;387
+BI Developer;Analyst;44;98843;462
+Data Engineer;Analyst;44;102434;435
+Data Engineer;Analyst;44;73731;44
+Data Engineer;Analyst;44;68779;35
+Machine Learning Engineer;Senior;44;91413;29
+Data Engineer;Analyst;44;114991;394
+Applied Scientist;Analyst;44;85222;814
+Data Scientist;Senior;44;87855;1226
+Research Analyst;Senior;44;93778;1012
+Data Scientist;Senior;44;81793;1288
+Data Engineer;Senior;44;89348;1059
+Research Engineer;Senior;44;99679;576
+Machine Learning Engineer;Senior;43;84330;482
+Data Engineer;Analyst;43;70543;20
+Data Analyst;Senior;43;117558;35
+Analytics Engineer;Analyst;43;105414;26
+Data Scientist;Senior;43;70468;23
+Machine Learning Engineer;Senior;43;84885;31
+Data Scientist;Analyst;43;112160;42
+Data Engineer;Analyst;43;88090;153
+Applied Scientist;Analyst;43;66903;1429
+Analytics Engineer;Senior;43;127540;693
+BI Analyst;Senior;43;71403;523
+Data Scientist;Senior;43;126419;801
+Research Scientist;Senior;43;117753;1415
+Data Analyst;Senior;43;139386;1314
+Machine Learning Engineer;Senior;43;120501;506
+Research Scientist;Analyst;43;63156;132
+Data Engineer;Analyst;43;81149;434
+Machine Learning Engineer;Senior;42;144919;95
+Data Analyst;Senior;42;89354;318
+Data Engineer;Senior;42;88702;45
+Research Analyst;Analyst;42;83413;48
+Data Analyst;Senior;42;71824;12
+Data Manager;Analyst;42;70918;42
+Machine Learning Engineer;Senior;42;74604;11
+Data Analyst;Analyst;42;78005;43
+Data Visualization Specialist;Senior;42;129538;526
+Research Scientist;Senior;42;83146;853
+BI Analyst;Senior;42;90242;1349
+Research Analyst;Senior;42;81045;885
+Data Scientist;Senior;42;130470;553
+Data Scientist;Analyst;42;70515;589
+Data Analyst;Analyst;42;104505;1106
+Research Scientist;Senior;42;115185;675
+Data Analyst;Analyst;42;87363;1491
+Machine Learning Engineer;Senior;42;117082;1197
+Data Science Engineer;Analyst;42;78191;553
+Machine Learning Engineer;Senior;42;106662;110
+Business Intelligence Engineer;Senior;42;95079;222
+Machine Learning Engineer;Senior;41;145736;643
+Data Analyst;Analyst;41;81430;161
+Data Scientist;Senior;41;138101;12
+Data Analyst;Senior;41;141853;26
+Analytics Engineer;Senior;41;121597;23
+Data Scientist;Senior;41;145870;28
+Data Engineer;Analyst;41;87659;27
+Data Manager;Senior;41;74066;43
+Data Engineer;Senior;41;105730;40
+Analytics Engineer;Analyst;41;111683;33
+Data Engineer;Analyst;41;118582;113
+Applied Scientist;Senior;41;96476;224
+Applied Scientist;Analyst;41;103307;868
+Business Intelligence Analyst;Analyst;41;62348;1383
+Data Engineer;Senior;41;138263;615
+Data Scientist;Analyst;41;109670;1043
+Data Analyst;Senior;41;90131;1196
+Applied Scientist;Senior;41;117055;757
+Applied Scientist;Senior;41;73508;383
+Data Analyst;Senior;41;110633;303
+Data Scientist;Senior;41;134237;373
+Data Engineer;Senior;41;80908;408
+Data Analyst;Analyst;41;79358;217
+Machine Learning Engineer;Senior;40;131108;470
+Data Analyst;Senior;40;71067;186
+Business Intelligence Analyst;Senior;40;148414;43
+Business Intelligence Engineer;Senior;40;142695;37
+Data Engineer;Senior;40;87570;32
+Analytics Engineer;Senior;40;98239;15
+Data Engineer;Analyst;40;92326;462
+Machine Learning Engineer;Senior;40;86259;76
+Data Scientist;Senior;40;85247;663
+Research Scientist;Senior;40;86038;1364
+Data Analyst;Analyst;40;91465;883
+Data Analyst;Analyst;40;72523;606
+Data Engineer;Senior;40;86038;1161
+Data Scientist;Senior;40;86038;1199
+Research Scientist;Analyst;40;80518;1320
+Data Science Engineer;Analyst;40;80858;1459
+Data Scientist;Senior;40;113081;1455
+Data Scientist;Senior;40;149574;288
+Data Scientist;Senior;40;81509;94
+Data Analyst;Analyst;39;63876;381
+Data Engineer;Analyst;39;112497;39
+Analytics Engineer;Analyst;39;79726;50
+ML Engineer;Analyst;39;105675;1372
+Data Engineer;Analyst;39;81781;195
+Data Engineer;Analyst;39;66643;298
+Machine Learning Engineer;Analyst;38;116943;197
+Business Intelligence Analyst;Analyst;38;93723;1115
+AI Engineer;Analyst;38;64748;1041
+Machine Learning Engineer;Analyst;38;64035;1479
+Data Analyst;Analyst;38;86962;698
+Applied Scientist;Analyst;38;83199;898
+Applied Scientist;Analyst;38;72672;947
+Research Scientist;Analyst;37;102086;423
+Data Engineer;Analyst;37;96603;24
+Data Engineer;Analyst;37;85903;20
+Research Scientist;Analyst;36;86140;351
+Data Engineer;Analyst;36;93085;48
+Machine Learning Engineer;Analyst;36;99663;643
+Data Analyst;Analyst;36;74592;1374
+Data Manager;Analyst;35;92458;24
+Research Scientist;Analyst;35;112741;46
+Data Manager;Director;35;174460;149
+Research Scientist;Analyst;35;76017;85
+Data Analyst;Analyst;35;67791;298
+Machine Learning Engineer;Senior;35;100240;364
+Data Analyst;Analyst;35;70825;155
+Data Engineer;Analyst;34;64426;190
+Data Analyst;Analyst;34;110440;13
+Machine Learning Engineer;Analyst;34;86506;49
+Data Engineer;Analyst;34;69043;23
+Data Engineer;Analyst;34;113782;32
+Data Analyst;Analyst;34;87176;511
+Data Engineer;Analyst;34;64088;1347
+Machine Learning Engineer;Senior;34;120419;446
+BI Developer;Analyst;33;111544;474
+Data Engineer;Analyst;33;77860;46
+Data Engineer;Analyst;33;98470;30
+Applied Scientist;Analyst;33;66485;758
+Insight Analyst;Analyst;33;109273;1040
+Research Scientist;Analyst;33;90016;671
+Data Scientist;Analyst;33;85140;1165
+Decision Scientist;Analyst;32;109189;350
+Data Analyst;Analyst;32;103251;456
+Financial Data Analyst;Junior;32;42096;901
+Data Engineer;Analyst;32;94832;15
+Data Analyst;Junior;32;54385;23
+Data Scientist;Analyst;32;105334;34
+Data Analyst;Analyst;32;108857;1357
+Data Engineer;Analyst;32;81889;807
+Data Analyst;Analyst;32;112139;470
+Data Engineer;Senior;32;128123;374
+Decision Scientist;Analyst;31;77884;307
+Data Engineer;Analyst;31;119747;22
+Data Analyst;Analyst;31;61374;10
+Data Engineer;Analyst;31;89052;1033
+Data Engineer;Analyst;31;112561;1255
+Data Scientist;Analyst;31;113106;1015
+Data Engineer;Junior;31;57820;246
+Research Scientist;Senior;31;92187;76
+Machine Learning Engineer;Analyst;30;62054;44
+Data Engineer;Analyst;30;119013;10
+Analytics Engineer;Analyst;30;84753;50
+Data Engineer;Junior;30;46903;107
+ML Engineer;Analyst;30;102386;959
+Insight Analyst;Analyst;30;77005;1170
+Data Analyst;Junior;29;61927;1126
+Data Scientist;Senior;29;103864;381
+Data Scientist;Senior;27;71248;202
+ML Engineer;Junior;25;77006;1211
+AI Developer;Junior;24;75155;79
+Data Analyst;Junior;24;73865;28
+AI Programmer;Junior;23;36249;36
+Data Scientist;Junior;23;74292;31
+Data Integration Specialist;Junior;23;67325;772
+Data Analyst;Junior;22;76398;1026
+Data Integration Specialist;Junior;21;76391;546
+Data Engineer;Junior;21;49814;130
+Data Engineer;Junior;20;65202;466
