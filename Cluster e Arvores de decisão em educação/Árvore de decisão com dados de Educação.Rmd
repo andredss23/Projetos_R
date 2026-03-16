@@ -1,0 +1,544 @@
+---
+title: "Árvore de decisão com dados de Educação"
+author: "André dos Santos Souza"
+date: "2023-06-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Carregando pacotes
+
+```{r, message=FALSE, warning=FALSE}
+pacotes <- c("tidyverse","data.table","DataExplorer","report","tidyr","knitr","kableExtra", 
+             "cluster", "dendextend", "factoextra", "fpc", "openxlsx", "PerformanceAnalytics", "ggraph",  "correlation", "corrplot", "corrr", "stats", "tidyverse","data.table", "tidyr","knitr","kableExtra", "data.table","wesanderson", "FactoMineR", "hrbrthemes", "viridis",
+ "gtools", "rpart", "rpart.plot", "rattle", "yardstick", "report", "skimr", "DataExplorer", "caret", "ModelMetrics")
+
+
+
+if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
+  instalador <- pacotes[!pacotes %in% installed.packages()]
+  for(i in 1:length(instalador)) {
+    install.packages(instalador, dependencies = T)
+    break()}
+  sapply(pacotes, require, character = T) 
+} else {
+  sapply(pacotes, require, character = T) 
+}
+
+# Evitar notação ciêntifica
+options(scipen = 100)
+```
+
+## Carregamento dos dados
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+df = fread(file = "C:/Users/andre/OneDrive/Área de Trabalho/Mestrado/Disciplinas/Primeiro Semestre - 2023/Introdução à Ciência de Dados para Ciências Sociais e  Humanas/base.csv", 
+                  sep = ",",
+                  dec = ".",
+                  header = TRUE,
+                  stringsAsFactors = FALSE,
+                  encoding = "UTF-8")
+
+df$niv_mat_prof_avan = as.factor( recode(df$niv_mat_prof_avan, `sim` = "sim", `nao` = "nao") )
+```
+
+## Análise exploratória de dados
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Veficicando as classes das variáveis
+str(df)
+# Verificando dimensões
+dim(df)
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Descobrindo algumas estatísticas básicas das variáveis
+var <- subset(df, select = -c(municipio, niv_mat_prof_avan))
+var <- summary(var)
+var |>  kable( digits = 3,  align = 'c', escape = F) |>
+  
+  kable_classic(full_width = FALSE, 
+                font_size = 20,
+                html_font = "Courier")
+
+typeof(df2)
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# 1) Removendo as linhas NA's
+df2 <- df %>% drop_na()
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Obtendo a matriz de correçaão
+dados_corr = df2 |> select(-municipio) |> select(-niv_mat_prof_avan)  
+matriz_pearson = cor(dados_corr)
+
+# Vizualizando os gráficos das matrizes de correlação
+## Gráfico 1
+corrplot(matriz_pearson, type="upper", tl.col = 'black' ) 
+## Gráfico 2
+data.frame(dados_corr) |> 
+  correlation(method = "pearson") |> 
+  plot( ) 
+## Gráfico 3
+data.frame(dados_corr) |> correlate() |> 
+  network_plot( min_cor = 0 )
+## Gráfico 4
+chart.Correlation(dados_corr, histogram=TRUE, pch=25)
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+
+df_long = dados_corr |> gather(key = "Serie", value = "Valor")
+
+ggplot(df_long, aes(x = Valor, y = Serie, color = Serie)) + 
+  
+  geom_boxplot() + 
+  
+  theme_light() + 
+  
+  theme(legend.position = "bottom")
+
+```
+
+# DECISION TREE - CART (CLASSIFICACAO)
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+cart_df <- rpart(niv_mat_prof_avan ~ alunosturma + med_hr_aula + tx_dist_idade_serie + txaprov + docsup + inse_nota,
+                      data = df2,
+                      parms = list(split = 'gini'), # podemos trocar para  'information'
+                      method = 'class' # Essa opção indica que a resposta é qualitativa
+                     )
+
+# plotando a árvore - funcao rpart.plot do pacote rpart.plot
+rpart.plot(cart_df,
+           box.palette = wes_palette("FantasticFox1") ) # Paleta de cores a la wes_anderson
+
+# do pacote rattle
+fancyRpartPlot(cart_df,
+               caption = NULL,
+               cex = 1,      # tamanho do texto na arvore
+               tweak = 0.8)  # tamano dos nós e folhas
+
+# Descrição da árvore
+# summary(cart_df)
+```
+
+```{r}
+# Obtendo as predicoes do modelo
+# Probabilidade de sobreviver com o pacote stats
+prob_survived = predict(cart_df, df2, type = "prob")
+head(prob_survived)
+
+# classificacao em sobreviventes (TRUE) e nao sobreviventes (FALSE)
+class_survived = predict(cart_df, df2, type = "class")
+head(class_survived)
+```
+
+```{r}
+# Matriz de confusão
+matriz_confusao <- table(df2$niv_mat_prof_avan, class_survived)
+
+matriz_confusao  |> kable() |>
+  
+  kable_styling(full_width = FALSE, 
+                font_size = 20,
+                html_font = "Arial")
+```
+
+```{r}
+# Métricas de avaliação de desempenho
+results_df = data.frame(predicted = class_survived, observed = df2$niv_mat_prof_avan)
+
+# para a curva roc, precisamso adicionar as colunas com as probabilidades das duas categorias
+results_df = bind_cols(results_df, prob_survived)
+head(results_df)
+```
+
+```{r}
+levels(results_df$observed)
+levels(results_df$predicted)
+
+results_df$observed <- relevel(results_df$observed, ref = "sim")
+results_df$predicted <- relevel(results_df$predicted, ref = "sim")
+
+levels(results_df$observed)
+levels(results_df$predicted)
+
+caret::confusionMatrix(data = results_df$predicted, 
+                       reference = results_df$observed, 
+                       positive = "sim")
+```
+
+```{r}
+# curva ROC
+
+# AUC - temos a função auc no pacote ModelMetrics e no pacote pROC
+auc_rpart <- ModelMetrics::auc(actual = results_df$observed, 
+                                predicted = results_df$predicted)
+auc_rpart
+
+yardstick::roc_curve(data = results_df, 
+                     truth = observed, 
+                     "sim") |> 
+            autoplot() +
+
+            labs(title = "Dados Educacionais municípios - CART ROC Curve (rpart)",
+            subtitle = paste0("AUC = ", round(auc_rpart, 4))   )
+```
+
+```{r}
+# Importância das variáveis
+
+( cart_df$variable.importance )
+
+df_importance <- data.frame(importance = cart_df$variable.importance)
+
+df_importance <- df_importance |> rownames_to_column() |> 
+  
+                rename("variable" = rowname) |> arrange( importance ) |>
+  
+                mutate(variable = forcats::fct_inorder(variable))
+
+
+ggplot(df_importance) +
+  
+  geom_col(aes(x = variable, y = importance), col = "black", show.legend = F) +
+  
+  coord_flip() +
+  
+  scale_fill_grey() +
+  
+  theme_bw()
+```
+
+# PODA E PRUNING
+
+```{r}
+set.seed(1)
+
+partition <- createDataPartition(y = df2$niv_mat_prof_avan, p = 0.8, list = FALSE)
+train_data <- df2[partition, ]
+test_data <- df2[-partition, ]
+```
+
+```{r}
+set.seed(123)
+
+cart_df3 <- rpart::rpart(niv_mat_prof_avan ~ alunosturma + med_hr_aula + tx_dist_idade_serie + txaprov + docsup + inse_nota,
+                              data = train_data,
+                              method = 'class',
+                              xval = 10,
+                              control = rpart.control(cp = 0, # sem restricao na complexidade 
+                                                      minsplit = 1, 
+                                                      maxdepth = 30) )
+
+
+rpart.plot(cart_df3, cex = 0.15, tweak = 0.5)
+```
+
+```{r}
+cart_df3$cptable
+
+printcp(cart_df3) |> kable() |>
+  
+  kable_classic(full_width = FALSE, 
+                font_size = 18,
+                html_font = "Courier")
+```
+
+```{r}
+plotcp(cart_df3, upper = "splits") # analise o cp e o xerror
+
+min_xerror = min( cart_df3$cptable[,"xerror"] )
+min_xerror
+
+min_cp = min( cart_df3$cptable[ cart_df3$cptable[,"xerror"] == min_xerror ,"CP"] )
+min_cp
+# note que temos um mínimo do erro de validacao para um cp próximo de 0.001367366
+```
+
+```{r}
+# REDE PRUNED! Vamos usar o cp ótimo identificado
+
+set.seed(123)
+cart_df4 <- rpart::rpart(niv_mat_prof_avan ~ alunosturma + med_hr_aula + tx_dist_idade_serie + txaprov + docsup + inse_nota,
+                              data = train_data,
+                              method = 'class',
+                              xval = 10,
+                              control = rpart.control(cp = min_cp,   
+                                                      minsplit = 10, 
+                                                      maxdepth = 30) )
+
+printcp(cart_df4)
+plotcp(cart_df4)
+
+rpart.plot(cart_df4)
+```
+
+```{r}
+# Avaliar a árvore na base de treino e de teste
+
+p_treino = predict(cart_df4, train_data, type = "prob")
+c_treino = predict(cart_df4, train_data, type = "class")
+
+results_treino = data.frame(p_treino, predicted = c_treino, observed = train_data$niv_mat_prof_avan)
+results_treino$observed <- relevel(results_treino$observed, ref = "sim")
+results_treino$predicted <- relevel(results_treino$predicted, ref = "sim")
+
+
+p_teste = predict(cart_df4, test_data, type = "prob")
+c_teste = predict(cart_df4, test_data, type = "class")
+
+results_teste = data.frame(p_teste, predicted = c_teste, observed = test_data$niv_mat_prof_avan)
+results_teste$observed <- relevel(results_teste$observed, ref = "sim")
+results_teste$predicted <- relevel(results_teste$predicted, ref = "sim")
+```
+
+```{r}
+# Matriz de confusão
+
+# Confusion matrix - train data
+confusion_matrix_cart4_treino = caret::confusionMatrix(results_treino$predicted, 
+                                                       results_treino$observed, 
+                                                       positive = "sim")
+confusion_matrix_cart4_treino
+
+# Confusion matrix - test data
+confusion_matrix_cart4_teste = caret::confusionMatrix(results_teste$predicted, 
+                                                      results_teste$observed, 
+                                                      positive = "sim")
+confusion_matrix_cart4_teste
+```
+
+```{r}
+# Função prune
+# veja que pruned_cart deve ser igual a cart_df4
+
+set.seed(123)
+
+pruned_cart <- prune(  cart_df3,
+                       cp = min_cp,
+                       minsplit=10 )
+
+rpart.plot(pruned_cart, yesno = TRUE)
+
+p_teste_pruned = predict(pruned_cart, test_data, type="prob")
+
+c_teste_pruned = predict(pruned_cart, test_data, type = "class")
+
+results_teste_pruned = data.frame(p_teste_pruned,
+                                  predicted = c_teste_pruned, 
+                                  observed = test_data$niv_mat_prof_avan )
+
+results_teste_pruned$observed <- relevel(results_teste_pruned$observed, ref = "sim")
+results_teste_pruned$predicted <- relevel(results_teste_pruned$predicted, ref = "sim")
+```
+
+```{r}
+# Matriz de confusão
+
+confusion_matrix_pruned = caret::confusionMatrix(results_teste_pruned$predicted, 
+                                                 results_teste_pruned$observed, 
+                                                 positive = "sim")
+confusion_matrix_pruned
+
+```
+
+```{r}
+# Importancia das variaveis na formacao do cart
+
+pruned_cart$variable.importance |> 
+  
+  data.frame() |>
+  
+  rownames_to_column(var = "Feature") |>
+  
+  rename('Overall' = pruned_cart.variable.importance) |>
+  
+  ggplot(aes(x = fct_reorder(Feature, Overall), y = Overall)) +
+  
+  geom_pointrange(aes(ymin = 0, ymax = Overall), color = "cadetblue", size = .3) +
+  
+  theme_minimal() +
+  
+  coord_flip() +
+  
+  labs(x = "", y = "", title = "Importância das variáveis para a classificação (pruned cart)")
+```
+
+```{r}
+# visualizando a matriz de confusao
+
+plot(results_teste_pruned$observed, 
+     results_teste_pruned$predicted, 
+     main = "Classificação Dados Educacionais: Observado vs. Previsto",
+     xlab = "Observado",
+     ylab = "Previsto")
+```
+
+```{r}
+# CURVA ROC
+# AUC
+
+auc_pruned <- ModelMetrics::auc(actual = results_teste_pruned$observed, 
+                                results_teste_pruned$predicted)
+auc_pruned
+
+
+yardstick::roc_curve(data = results_teste_pruned, 
+                     truth = observed, 
+                     "sim") |> 
+  autoplot() +
+  
+  labs(title = "DADOS EDUCACIONAIS CART ROC Curve (Pruned cart)",
+       subtitle = paste0("AUC = ", round(auc_pruned, 4))   )
+```
+
+```{r}
+p_teste3 = predict(cart_df3, test_data, type = "prob")
+c_teste3 = predict(cart_df3, test_data, type = "class")
+
+results_teste3 = data.frame(p_teste3, predicted = c_teste3, observed = test_data$niv_mat_prof_avan)
+results_teste3$observed <- relevel(results_teste3$observed, ref = "sim")
+results_teste3$predicted <- relevel(results_teste3$predicted, ref = "sim")
+
+
+auc_cart3 <- ModelMetrics::auc(actual = results_teste3$observed, 
+                                results_teste3$predicted)
+auc_cart3
+```
+
+```{r}
+yardstick::roc_curve(data = results_teste3, 
+                     truth = observed, 
+                     "sim") |> 
+  autoplot() +
+  
+  labs(title = "DADOS EDUCACIONAIS CART ROC Curve (Free cart)",
+       subtitle = paste0("AUC = ", round(auc_cart3, 4))   )
+
+```
+
+```{r}
+confusion_matrix_cart3 = caret::confusionMatrix(results_teste3$predicted, results_teste3$observed, positive = "sim")
+confusion_matrix_cart3
+```
+
+PACOTE CARET
+
+```{r}
+set.seed(1) # controle para a geração de números aleatórios
+
+partition1 <- createDataPartition(y = df2$niv_mat_prof_avan, p = 0.8, list = FALSE)
+train_data1 <- df2[partition, ]
+test_data1 <- df2[-partition, ]
+```
+
+```{r}
+set.seed(100) # controle para a geração de números aleatórios
+train_ctrl <- trainControl(method = "cv", 
+                           number = 10, 
+                           savePredictions = "final",   # save preds for the optimal tuning parameter
+                           classProbs = TRUE,           # class probs in addition to preds
+                           summaryFunction = twoClassSummary)
+```
+
+```{r}
+caret_cart <- train(niv_mat_prof_avan ~ alunosturma + med_hr_aula + tx_dist_idade_serie + txaprov + docsup + inse_nota, 
+                    data = train_data1, 
+                    method = "rpart", 
+                    trControl = train_ctrl, 
+                    metric = "ROC", 
+                    tuneLength = 10 ) 
+```
+
+```{r}
+print(caret_cart)  # resumo geral dos resultados - tabela de cp vs desempenho
+caret_cart$results # medias e dps das métricas de desempenho
+caret_cart$pred    # resultados previstos por fold
+
+table( caret_cart$pred[ ,"Resample"] ) # 10 folds de tamanho 57
+```
+
+```{r}
+# Podemos usar um grid-search mais especifico para a busca pelo cart ótimo
+set.seed(1234)
+
+caret_cart2 <- train(niv_mat_prof_avan ~ alunosturma + med_hr_aula + tx_dist_idade_serie + txaprov + docsup + inse_nota, 
+                      data = train_data, 
+                      method = "rpart", 
+                      tuneGrid = expand.grid(cp = seq(from = 0.001, to = 0.01, length = 40)),  
+                      metric = "ROC",
+                      trControl = train_ctrl )
+
+print(caret_cart2)
+
+plot(caret_cart2) # grafico de cp versus ROC
+```
+
+```{r}
+# para obter o modelo final melhor ajustado puxamos o finalModel
+summary( caret_cart2$finalModel )
+
+rpart.plot( caret_cart2$finalModel, cex = 1, tweak = 0.5)
+```
+
+```{r}
+results_caret2 <- bind_cols(predict(caret_cart2, newdata = test_data, type = "prob"),
+                            predicted = predict(caret_cart2, newdata = test_data, type = "raw"),
+                            observed = test_data$niv_mat_prof_avan )
+
+results_caret2$observed <- relevel(results_caret2$observed, ref = "sim")
+results_caret2$predicted <- relevel(results_caret2$predicted, ref = "sim")
+```
+
+```{r}
+confusion_matrix_caret2 <- caret::confusionMatrix(results_caret2$predicted, 
+                                                  results_caret2$observed, 
+                                                  positive = "sim")
+confusion_matrix_caret2
+```
+
+```{r}
+# AUC
+auc_caret2 <- ModelMetrics::auc(actual = results_caret2$observed, 
+                                predicted = results_caret2$predicted)
+auc_caret2
+
+yardstick::roc_curve(results_caret2, observed, sim) |>
+  
+  autoplot() +
+  
+  labs(title = "DADOS EDUCACIONAIS CART ROC Curve (caret)",
+       subtitle = paste0("AUC = ", round(auc_caret2, 4) )  )
+```
+
+```{r}
+# olhando para a importancia de cada variavel para o cart obtido
+plot( varImp(caret_cart2), main="Variable Importance with CART (caret)")
+
+caret_cart2$finalModel$variable.importance
+```
+
+```{r}
+# criando uma tabela com as acurácias dos três modelos - free (cart3), pruned e caret
+df_scoreboard <- rbind( data.frame(Model = "Árvore Podada (pruned)", Accuracy = confusion_matrix_pruned$overall["Accuracy"]),
+                             data.frame(Model = "Árvore Caret",  Accuracy = confusion_matrix_caret2$overall["Accuracy"]) ) |> 
+  
+                      arrange( desc(Accuracy) )
+
+rownames(df_scoreboard) <- NULL
+
+# visualizando a tabela
+df_scoreboard |> kable() |>
+  
+  kable_classic(full_width = FALSE, 
+                font_size = 18,
+                html_font = "Courier")
+```
+

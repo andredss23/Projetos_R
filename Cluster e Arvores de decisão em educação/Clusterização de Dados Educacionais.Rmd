@@ -1,0 +1,366 @@
+---
+title: "Clusterização de Dados Educacionais"
+author: "André dos Santos Souza"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Carregando pacotes
+
+```{r, message=FALSE, warning=FALSE}
+pacotes <- c("tidyverse","data.table","DataExplorer","report","tidyr","knitr","kableExtra", 
+             "cluster", "dendextend", "factoextra", "fpc", "openxlsx", "PerformanceAnalytics", "ggraph",  "correlation", "corrplot", "corrr", "stats")
+
+if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
+  instalador <- pacotes[!pacotes %in% installed.packages()]
+  for(i in 1:length(instalador)) {
+    install.packages(instalador, dependencies = T)
+    break()}
+  sapply(pacotes, require, character = T) 
+} else {
+  sapply(pacotes, require, character = T) 
+}
+
+# Evitar notação ciêntifica
+options(scipen = 100)
+```
+
+## Carregamento dos dados
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+df = fread(file = "C:/Users/andre/OneDrive/Área de Trabalho/Mestrado/Disciplinas/Primeiro Semestre - 2023/Introdução à Ciência de Dados para Ciências Sociais e  Humanas/dados_icd.csv", 
+                  sep = ",",
+                  dec = ".",
+                  header = TRUE,
+                  stringsAsFactors = FALSE,
+                  encoding = "UTF-8")
+```
+
+## Objetivo do Trabalho
+
+O presente trabalho tem como objetivo analisar os dados da educação dos municípios dos estados com as cinco piores notas padronizadas do SAEB no ano de 2019: Pará, Rio Grande do Norte, Sergipe, Amapá e Maranhão. Os dados são de origem do INEP e IDEB, o objetivo é determuinar quais municípios poderiam ser alvo de políticas públicas e receber financiamento para melhoria da qualidade de educação do quinto ano do fundamental. 
+
+Dessa forma, gostariamos de entender quais municípios seriam recomendados de receberem políticas públicas direcionadas para melhorar o desempenho dos alunos do quinto ano do ensino fundamental, as variaveis selecionadas são as seguintes:
+
+* Dados do Indicadores Educacionais
+  + Média de Alunos por Turma - alunosturma
+  + Média de Horas-Aula diária - med_hr_aula
+  + Taxa de distorção idade-série - tx_dist_idade_serie,
+  + Taxa de Aprovação - txaprov
+  + Taxa de Abandono - txaband
+  + Percentual de Docentes com Curso Superior (Do 1º ao 5º ano) - docsup
+* Indicador Nível Socioeconômico (INSE)
+  + Média ponderada do Indicador de Nível Socioeconômico dos alunos do estrato do município - inse_nota
+* Notas SAEB 
+  + Média da Nota de Todos os Alunos no município de Língua Portuguesa - nota_port
+  + Média da Nota de Todos os Alunos no município de Matemática - nota_mat
+  
+## Análise exploratória de dados
+
+Desse modo, primeiramente iremos realizar uma análise exploratória dos dados para entendermos melhor sobre a nossa base de dados. Uma boa análise de dados é fundamental para entendermos a estrutura dos dados e possíveis escolhas analíticas que devemos fazer. 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Veficicando as classes das variáveis
+str(df)
+# Verificando dimensões
+dim(df)
+```
+
+Primeiramente, ao executarmos as funções str e dim para a nossa base de dados. Logo, como resultado da função str temos que somente a variável município tem o formato character e as outras variáveis são numéricas. Além disso, como resultado da função dim, temos que nosso data frame é composto por 619 linhas e 11 colunas, sendo o número de 619 a soma de todos os municípios, as linhas correspondem ao número de municípios dos estados selecionados. 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Descobrindo algumas estatísticas básicas das variáveis
+var <- subset(df, select = -c(municipio))
+var <- summary(var)
+var |>  kable( digits = 3,  align = 'c', escape = F) |>
+  
+  kable_classic(full_width = FALSE, 
+                font_size = 20,
+                html_font = "Courier")
+```
+
+A próxima função utilziada será a summary, nela obtemos as estatísticas das nossas variáveis, como mínino, primeiro quartil, mediana, média aritimética, terceiro quartl, máximo e valores nulos (NA's). Com isso, obtemos algumas informações importantes que serão necessárias para os próximos passos do nosso estudo.
+
+O número de dados faltantes nas variável das notas de matemática e português são de 16 municípios, ou seja, 16 municípios não possuem dados referentes ao desempenho dos seus alunos no ensino fundamental do quinto ano, não sendo possível realizar análises de correlação, clustering, entre outras técnicas com os dados faltantes. Desse modo, precisamos adotar alguma estratégia para lidar com os dados faltantes, existindo três possíbilidades:
+
+* 1) Remoção de linhas ou colunas: Podemos optar por remover as linhas ou colunas que contenham valores NA. No entanto, essa abordagem pode levar à perda de informações se os dados ausentes forem significativos em relação à análise.
+
+* 2) Preenchimento com a média, mediana ou moda: Podemos substituir os valores NA pela média, mediana ou moda dos valores existentes na mesma coluna. Essa abordagem é útil quando os dados ausentes são numericamente similares aos demais dados.
+
+* 3) Preenchimento com valores constantes: Podemos preencher os valores NA com um valor constante, como zero ou uma string específica, se for apropriado para o contexto do problema. Essa abordagem pressupõe que os valores ausentes não têm um significado especial.
+
+A estratégia que iremos adotar será a estratégia (1), onde iremos perder 2% dos dados da nossa amostra, porém não iremos inserir dados inexistêntes em nossa base.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# 1) Removendo as linhas NA's
+df2 <- df %>% drop_na()
+```
+
+## Estatisticas descritivas por estados
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+df_estados <- df2 %>% 
+  separate(municipio, into = c("UF","municipio"), sep = "-")
+
+resumo <- df_estados |> group_by( UF) %>% 
+  
+  summarise( media_alunos_turma = mean(alunosturma),
+             media_horas_aula = mean(med_hr_aula),
+             media_taxa_distorcao = mean(tx_dist_idade_serie),
+             media_aprovacao = mean(txaprov),
+             media_abandono = mean(txaband),
+             media_docentes_superior = mean(docsup),
+             media_nota_inse = mean(inse_nota),
+             media_nota_matematica = mean(nota_mat),
+             media_nota_portugues = mean(nota_port))
+
+resumo |>  kable( digits = 3, align = 'c' ) |>
+  
+  kable_classic(full_width = FALSE, 
+                font_size = 16.5,
+                html_font = "Courier")
+```
+
+A seguir, iremos analisar qual a correlação entre as variáveis, essa etapa é de grande importância para analisar qual a ligação entre as variáveis do nosso data.frame.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Obtendo a matriz de correçaão
+dados_corr = df2 |> select(-municipio)
+matriz_pearson = cor(dados_corr)
+
+# Vizualizando os gráficos das matrizes de correlação
+## Gráfico 1
+corrplot(matriz_pearson, type="upper", tl.col = 'black' ) 
+## Gráfico 2
+data.frame(dados_corr) |> 
+  correlation(method = "pearson") |> 
+  plot( ) 
+## Gráfico 3
+data.frame(dados_corr) |> correlate() |> 
+  network_plot( min_cor = 0 )
+## Gráfico 4
+chart.Correlation(dados_corr, histogram=TRUE, pch=25)
+```
+
+Por fim, iremos realizar a análise de alguns gráficos para entender melhor qual a estrutura ea distribuição das nossas variáveis selecionadas.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+
+df_long = df |> gather(key = "Serie", value = "Valor", -municipio)
+
+ggplot(df_long, aes(x = Valor, y = Serie, color = Serie)) + 
+  
+  geom_boxplot() + 
+  
+  theme_light() + 
+  
+  theme(legend.position = "bottom")
+
+```
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+
+df3 = column_to_rownames(df2, var = "municipio")
+df3_long <- gather(df3, key = "Serie", value = "Valor" )
+
+ggplot(df3_long, aes(x = Serie, y = Valor), color = factor(Serie) ) + 
+  
+  geom_violin( aes(fill = factor(Serie) ), alpha = 0.5) + 
+  
+  geom_boxplot(aes(fill = factor(Serie) ), width = 0.25, notch = TRUE) + 
+  
+  facet_wrap(vars(Serie), nrow = 3, scale = "free") +
+  
+  theme_minimal() 
+
+```
+
+## Clustering 
+
+A presente técnica exploratória é utilizada para identificar comportamentos semelhantes entre as observações de indivíduos, empresas, municípios, países etc. Para assim, realizar análise de conglomerados
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Estabelecendo a coluna município como rowname, pois deixaremos somente as variáveis numéricas
+df3 = column_to_rownames(df2, var = "municipio") 
+
+# Padronizando as variáveis
+df_pad <- scale(df3)
+```
+
+## Calculando a matriz de distância com os dados padronizados
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Distância euclidiana
+matrizd_pad <- dist(df_pad, method = "euclidean")
+# Distãncia Manhattan
+matrizd_pad_1 <- dist(df_pad, method = "manhattan")
+# Distância Supremum
+matrizd_pad_2 <- dist(df_pad, method = "maximum")
+```
+
+Primeiramente vamos calcular a distância euclidiana entre os pontos, essa se utiliza do cálculo euclidiano entre as distâncias dos pontos, sendo a fórumla: a² = b² + c². 
+
+## Realizando os metodos disponiveis "average", "single", "complete" e "ward.D"
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+set.seed(1)
+hc1 <- hclust(matrizd_pad, method = "single" )
+hc2 <- hclust(matrizd_pad, method = "complete" )
+hc3 <- hclust(matrizd_pad, method = "average" )
+hc4 <- hclust(matrizd_pad, method = "ward.D" )
+hc5 <- hclust(matrizd_pad, method = "centroid" )
+
+# Vizualizando os dendogramas
+plot(hc1, cex = 0.6, hang = -1)
+plot(hc2, cex = 0.6, hang = -1)
+plot(hc3, cex = 0.6, hang = -1)
+plot(hc4, cex = 0.6, hang = -1)
+plot(hc5, cex = 0.6, hang = -1)
+```
+
+Logo, analisando os resultados temos que: 
+* Método Single
+  + O método *single* determina agrupa as amostram em vizinhos mais próximos, mas existem muitos grupos com poucas amostras e um grupo com uma grande amostra, não sendo o ideal para nossa análise.
+  + O método *complete* determina os grupos pelos vizinhos mais distantes, gerando um grande gerando uma grande quantidade de grupos que me parecem muitos para realizar um agrupamento e pouco claros.
+  + O método *average linkage* determina os grupos a partir das médias das distâncias dos grupos, resultou em grupos muito grandes que só se agruparam melhor em poucos grupos, o que geraria um elevado número de grupos que não seriam interessantes para nossa análise.
+  + O método *ward* é determinado pela análise de variância entre os indivíduos, também denominado método
+da mínima variância, a ideia do método de Ward é aglomerar os grupos que minimizam a soma de quadrados dentro dos grupos. O resultado gerou conjuntos melhores definidos, entre 5 a 8 grupos bem de municípios.
+  + O método *centroide* é determinado pela distância dos centros dos clusters, resultando em grupos muito grandes e pouco distintos
+  
+  Os dois métodos mais interessantes ao meu ver foram o método de average e o de ward, pois ambos resultam em clusters melhores definidos, será realizado uma comparação entre os dendrogramas.
+```{r, message=FALSE, warning=FALSE, echo=FALSE}  
+# Comparando os Dendogramas
+# Comparando o metodo average com ward
+dend3 <- as.dendrogram(hc3)
+dend4 <- as.dendrogram(hc4)
+dend_list <- dendlist(dend3, dend4)
+
+# Criando um emaranhado
+tanglegram(dend3, dend4, 
+           main = paste( "Emaranhado = ", round(entanglement(dend_list), 2) ) )
+
+```
+
+Assim, avaliando o intuito do projeto, será escolhido o método ward, pois ele melhor define os grupos observados, analisaremos agora quantos grupos serão escolhidos entre 5 a 8 clusters. 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# 5 Grupos
+fviz_dend(hc4, k = 5,                 # Cut in four groups
+          cex = 0.5,                 # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#8966ef", "#836474", "#c600ff", "#5946b2"),
+          color_labels_by_k = TRUE,  # color labels by groups
+          show_labels = TRUE,
+          ggtheme = theme_gray()     # Change theme
+          )
+
+# 6 Grupos
+fviz_dend(hc4, k = 6,                 # Cut in four groups
+          cex = 0.5,                 # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#8966ef", "#836474", "#c600ff", "#5946b2"),
+          color_labels_by_k = TRUE,  # color labels by groups
+          show_labels = TRUE,
+          ggtheme = theme_gray()     # Change theme
+          )
+# 7 Grupos
+fviz_dend(hc4, k = 7,                 # Cut in four groups
+          cex = 0.5,                 # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#8966ef", "#836474", "#c600ff", "#5946b2"),
+          color_labels_by_k = TRUE,  # color labels by groups
+          show_labels = TRUE,
+          ggtheme = theme_gray()     # Change theme
+          )
+# 8 Grupos
+fviz_dend(hc4, k = 8,                 # Cut in four groups
+          cex = 0.5,                 # label size
+          k_colors = c("#2E9FDF", "#00AFBB", "#E7B800", "#FC4E07", "#8966ef", "#836474", "#c600ff", "#5946b2"),
+          color_labels_by_k = TRUE,  # color labels by groups
+          show_labels = TRUE,
+          ggtheme = theme_gray()     # Change theme
+          )
+```
+
+Desse modo, partindo do pressuposto de que desejamos realizar uma proposta para melhorias na educação dos municípios selecionados, iremos selecionar o total de 8 clustering e estabelecer uma ordem de priorização de cada um desses grupos.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Criando grupos de municípios
+# Grupo de 5
+grupo_k5 <- cutree(hc4, k = 5)
+table(grupo_k5)
+
+# Grupo de 6
+grupo_k6 <- cutree(hc4, k = 6)
+table(grupo_k6)
+
+# Grupo de 7
+grupo_k7 <- cutree(hc4, k = 7)
+table(grupo_k7)
+
+# Grupo de 8
+grupo_k8 <- cutree(hc4, k = 8)
+table(grupo_k8)
+```
+
+Abaixo serão determinadas as médias dos grupos de acordo com as variáveis selecionadas para analisarmos.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Juntando com a base original
+df3$grupo <- grupo_k8
+
+# Analisando as caracteristicas das médias dos clusters
+descritivas_df <- df3  |>
+  
+  group_by( grupo ) |> 
+  
+  summarise(across(everything(), mean),
+            .groups = 'drop')  |>
+  
+  as.data.frame() |>
+  
+  ungroup()
+
+# Vsualizando os clusters
+descritivas_df |>  kable( digits = 2, align = "c" ) |>
+  
+  kable_classic(full_width = FALSE, 
+                font_size = 16,
+                html_font = "Courier")
+```
+Logo, a partir das estatisticas analisadas, os grupos que vamos focar as políticas para melhorias de educação seguem a seguinte ordem: 8, 2, 3, 7, 6, 1, 5 e 4.
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+# Filtrando os grupos de interesse
+grupo <-  df3 |> filter( grupo == 8 ) |> arrange(nota_mat)
+
+# Olhando ao menos duas variaveis
+ggplot(df3, aes(x = nota_mat, y = inse_nota, color = factor(grupo) )) + 
+  
+  geom_point() + 
+  
+  geom_smooth(method = lm, se = FALSE)+
+  
+  theme_light() + 
+  
+  labs(color = "Grupo", x = "Nota Matemática", y = "Nota do INSE")
+
+## Grupo Alvo
+aid_target  <-  df3 |> filter( grupo == 8 ) |> arrange(nota_mat)
+
+aid_target_long <- gather(aid_target, key = "Serie", value = "Valor" )
+
+ggplot(aid_target_long, aes(x = Serie, y = Valor), color = factor(Serie) ) + 
+  
+  geom_violin( aes(fill = factor(Serie) ), alpha = 0.5) + 
+  
+  geom_boxplot(aes(fill = factor(Serie) ), width = 0.25, notch = TRUE) + 
+  
+  facet_wrap(vars(Serie), nrow = 3, scale = "free") +
+  
+  theme_minimal() 
+```
+
+É possível destacar que o grupo 8, o com os piores números, é composto por 73 municípios do Maranhão e apenas 2 do Pará, algo que contribui com as estatísticas iniciais dos estados mais vulneráveis das notas padronizadas do SAEB de 2019. Com isso, recomendariamos inicialmente o enfoque nos municípios do grupo 8 para realização de políticas públicas relacionadas ao ensino fundamental do 1º ao 5º ano, ao qual políticas focalizadas de aumento de profesores com ensino superior, aumento de horas estudadas, reforço em português e matemática. Além disso, a promoção de políticas universais, como aumento dos salários e geração de empregos impactaria positivamente na melhora do desempenho dos alunos, devido as condições familiares importarem.
